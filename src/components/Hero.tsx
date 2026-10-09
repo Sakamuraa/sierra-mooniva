@@ -34,6 +34,23 @@ import { EASE_OUT_EXPO } from "@/lib/reveal-motion";
  * Height is `min-h-[calc(100dvh-4rem)]`, never `h-screen`, so a collapsing mobile
  * address bar cannot clip the actions.
  */
+/**
+ * The dark theme's text tokens, applied to the panel while artwork is showing.
+ *
+ * Declared at module scope rather than inline so the object identity is stable
+ * across renders -- a fresh literal each render makes Motion re-serialise styles
+ * on every frame of the enter animation for no reason.
+ */
+const PANEL_TEXT_VARS = {
+  "--fg": "#f7e6e4",
+  "--fg-muted": "#e8b9b7",
+  "--fg-subtle": "#c08b89",
+  "--accent": "#e5a93c",
+  "--accent-contrast": "#1a0003",
+  "--line": "#4d1a1c",
+  "--line-strong": "#d32f2f",
+} as React.CSSProperties;
+
 export function Hero() {
   const reduceMotion = useReducedMotion();
 
@@ -69,14 +86,48 @@ export function Hero() {
       <div aria-hidden="true" className="dawn-wash absolute inset-0 -z-10" />
 
       <div className="shell grid min-h-[calc(100dvh-4rem)] items-center py-14 md:py-20">
-        <motion.div
-          {...enter(0.04)}
-          /*
-            The frame. One bordered panel. With artwork it becomes the frame for
-            the picture; without, it is the document itself.
-          */
-          className="relative isolate overflow-hidden border border-line-strong/60"
-        >
+        <motion.div {...enter(0.04)} className="relative isolate">
+          <div
+            /*
+              The frame. One bordered panel. With artwork it becomes the frame for
+              the picture; without, it is the document itself.
+
+              A plain div rather than a second motion element, because this is where
+              the custom-property override lives and Motion's `style` prop is typed
+              as MotionStyle, which fights both a React.CSSProperties object and an
+              explicit `undefined` under exactOptionalPropertyTypes. The animation
+              is on the wrapper, which is where the transform belongs anyway.
+            */
+            className="relative isolate overflow-hidden border border-line-strong/60"
+            /*
+              The panel keeps the dark theme's text colours while the artwork is in
+              place, in the light theme too.
+
+              Done by overriding the custom properties on the panel rather than by
+              giving each element its own class. Every token-based colour inside --
+              the heading, the identity rule, the bio, the header labels, the action
+              buttons -- resolves through these, so one override re-themes the whole
+              panel and none of them can be missed. Adding a new element inside the
+              hero later gets the right colour for free, which per-element classes
+              would not.
+
+              It has to be this: the artwork is dark in both themes, so a visitor who
+              picks light mode is looking at pale text on a dark picture. Flipping
+              the page's text to near-black there would make the name unreadable, and
+              the theme switch is a preference about the rest of the page, not a
+              statement about a photograph.
+
+              The heading carries an explicit `text-fg` for a reason that is easy to
+              miss. It had no colour class of its own and inherited `color` from
+              body -- where `--fg` had already been resolved, so the panel's override
+              never reached it and the name stayed dark-on-dark. An inherited value
+              is computed once at the ancestor and handed down; overriding a custom
+              property further down cannot retroactively change it. Anything inside
+              this panel that should follow the override has to name the token
+              itself.
+            */
+            style={artLoaded ? PANEL_TEXT_VARS : undefined}
+          >
           {/*
             The artwork, behind everything.
 
@@ -189,7 +240,7 @@ export function Hero() {
               <motion.h1
                 {...enter(0.1)}
                 id="hero-name"
-                className="text-[clamp(2.4rem,6.5vw,4.5rem)] font-semibold leading-[1.05] tracking-tight"
+                className="text-fg text-[clamp(2.4rem,6.5vw,4.5rem)] font-semibold leading-[1.05] tracking-tight"
               >
                 {site.name}
               </motion.h1>
@@ -220,6 +271,8 @@ export function Hero() {
                 </ActionLink>
               </motion.div>
             </div>
+          </div>
+          {/* Closing the plain panel div, then the motion wrapper around it. */}
           </div>
         </motion.div>
       </div>
