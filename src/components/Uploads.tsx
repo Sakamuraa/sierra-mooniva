@@ -189,7 +189,7 @@ function BroadcastCard({ item, fallbackIndex }: { item: ContentItem; fallbackInd
 
         <span className="min-w-0">
           {item.live && (
-            <span className="mb-1.5 inline-flex items-center gap-1.5 rounded-btn bg-ground px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-bg">
+            <span className="mb-1.5 inline-flex items-center gap-1.5 rounded-btn bg-gold px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-ground">
               {/* A real semantic state read from the channel, which is the one
                   case where a status dot belongs. */}
               <span className="relative flex size-2">

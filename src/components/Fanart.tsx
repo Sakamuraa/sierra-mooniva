@@ -31,7 +31,7 @@ export function Fanart() {
           </h1>
           <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-fg-muted md:text-lg">
             Ilustrasi yang orang buat buat Sierra, diambil dari posts bertanda{" "}
-            <span className="font-mono text-fg">#PingGambar</span> di X.
+            <span className="font-mono text-fg">#MoonivArt</span> di X.
           </p>
         </Reveal>
 
@@ -63,7 +63,7 @@ export function Fanart() {
             </p>
             <div className="mt-6">
               <ActionLink href={searchUrl} external variant="quiet">
-                Buka pencarian #PingGambar
+                Buka pencarian #MoonivArt
                 <ArrowSquareOut size={16} aria-hidden="true" />
               </ActionLink>
             </div>

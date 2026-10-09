@@ -182,7 +182,7 @@ function MetaRow({ item }: { item: ContentItem | null }) {
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-fg-subtle">
       {item.live && (
-        <span className="inline-flex items-center gap-1.5 rounded-btn bg-ground px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-bg">
+        <span className="inline-flex items-center gap-1.5 rounded-btn bg-gold px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-ground">
           <span className="relative flex size-1.5">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-bg opacity-75" />
             <span className="relative inline-flex size-1.5 rounded-full bg-bg" />

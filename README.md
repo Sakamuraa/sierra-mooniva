@@ -6,15 +6,22 @@ data karangan.
 
 ```
 npm install
-npm run dev      # http://localhost:5173
+npm run dev      # http://localhost:5173, termasuk /api/*
 npm run build    # -> dist/
 npm run preview  # cek hasil build, tanpa /api
 npm run lint
 ```
 
-> `npm run dev` **tidak** melayani `/api/content`. Itu serverless function milik
-> Vercel, bukan route Vite. Untuk mencoba jalur live secara lokal pakai
-> `vercel dev`.
+> `npm run dev` **melayani** `/api/*` lewat plugin di `vite.config.ts`, yang
+> memanggil module handler yang sama dengan yang dideploy. `vercel dev` juga
+> jalan, tapi butuh CLI dan login; plugin-nya memanggil handler yang sama
+> in-process, jadi tidak ada versi dev dari sebuah endpoint yang bisa melenceng
+> dari yang produksi.
+>
+> Versi pertama tidak punya plugin itu, jadi setiap panggilan `/api` 404 dan
+> klien jatuh ke snapshot-nya. Itu sebabnya halaman pernah menampilkan Video 12
+> sementara Streams dan Clips 0 — snapshot-nya punya upload tapi tidak punya
+> stream, dan feed langsung yang akan mengisinya tidak pernah jalan.
 
 ## Sumber data
 
@@ -82,15 +89,22 @@ pencariannya, bukan orangnya. Angka itu karena itu dibawa, dan catatan di
 `api/content.ts` menyatakan terus terang bahwa ia belum diukur ulang terhadap
 kanal Sierra.
 
-Yang **tidak** dilakukan: tidak ada satu pun pass yang diukur terhadap kanal
-Sierra. Unggahannya adalah cover, dan klip dari sebuah cover berbeda bentuk
-dari klip sebuah stream. Tembok klip di sini boleh kembali kosong, dan
-`SNAPSHOT_CLIPS` di `src/lib/useContent.ts` kosong karena alasan yang sama
-bukan karena membawa daftar kreator lain. `SNAPSHOT_STREAMS` juga kosong: dia
-menerbitkan cover, bukan menyiarkan, dan mengarsipkan broadcast yang tidak
-pernah ada adalah hal yang tidak boleh dilakukan file ini. `/konten` jatuh ke
- unggahan terbaru saat jendela stream kosong, dan itu perilaku yang memang
-dibangun untuk kasus itu.
+Ketiga daftar itu terisi. Versi pertama file ini mengirim `SNAPSHOT_STREAMS` dan
+`SNAPSHOT_CLIPS` sebagai array kosong, dengan paragraf yang Warrant
+membenarkan: dia dianggap channel cover. Itu dibaca dari tab `/videos` saja dan
+tidak pernah dicek ke `/streams` — yang ternyata berisi delapan broadcast
+(Fire Emblem, Kitaria Fables 2, DotA 2, VALORANT, dan beberapa kolab). Dia
+menyiarkan. Membaca satu tab lalu menggeneralisasi adalah bagaimana tab upload
+cover berubah jadi klaim tentang seluruh channel.
+
+Snapshot sekarang dibuat ulang dengan memanggil handler-nya langsung, bukan
+ditik ulang tangan: judul cover-nya bahasa Jepang, dan melewati pipeline
+PowerShell karakter itu kembali sebagai `?` — yang sudah terjadi sekali, dan
+hilang lagi tanpa disengaja.
+
+Sebelas dari dua belas klip ada di channel orang lain, sebagian besar channel
+Exile Syahputra dan beberapa menyebut nama rekan main di judulnya. Itu memang
+bentuk tembok klip: indeks tempat dia muncul, menaut balik ke aslinya.
 
 ### Kenapa tidak ada jam mulai
 
@@ -343,12 +357,15 @@ section kosong.
   tidak dikenal dirender sebagai no-op, bukan error, jadi ketiadaan referensi
   itulah yang menjaga warnanya tidak hilang diam-diam.
 
-**Belum diverifikasi untuk kanal ini:** skor Lighthouse CLI, performa di
-jaringan asli, jalur `/konten` saat ada stream benar-benar sedang berjalan,
-pengambilan tweet dari Nitter untuk `@SierraMooniva`, dan hitungan klip. Yang
-terukur di_readme ini diwarisi dari situs saudara; tidak ada satu pun angka
-performanya yang diukur ulang terhadap kanal Sierra, dan tidak ada yang
-dis أقرakannya seolah begitu.
+**Belum diverifikasi:** skor Lighthouse CLI, performa di jaringan asli, dan
+jalur `/konten` saat ada stream benar-benar sedang berjalan. Angka performa
+lainnya di dokumen ini diwarisi dari situs saudara dan tidak diukur ulang
+terhadap kanal ini.
+
+List yang **diverifikasi ulang** untuk kanal ini, dengan handler dipanggil
+langsung: 8 stream, 12 video, 12 klip, 20 tweet, 17 fan art - semuanya
+`status 200`. Keempatnya juga dicek ulang lewat `npm run dev`, bukan hanya
+lewat handler, karena bug-nya ada di sana: `/api` tidak pernah jalan di dev.
 
 ## Berat aset
 

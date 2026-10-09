@@ -53,7 +53,7 @@ export const site = {
   /** Her own self-description, in her own words. */
   role: "Virtual Corporate Secretary",
   /** What she is on the channel, in her own words. */
-  identity: "VTuber · Cover artist · JRPG",
+  identity: "VTuber · Stream · Cover · JRPG",
 } as const;
 
 /**
@@ -72,7 +72,7 @@ export const channels = {
     label: "YouTube",
     handle: "@SierraMooniva",
     url: "https://www.youtube.com/@SierraMooniva",
-    note: "Cover dan upload",
+    note: "Stream dan cover",
   },
   x: {
     label: "X",
@@ -109,13 +109,23 @@ export const ROUTES = [
 export type Route = (typeof ROUTES)[number];
 
 /**
- * Her hashtag, taken from the one in her own X bio.
+ * Hashtags, as published by her: one general tag, then one per kind of post.
  *
- * "#MoonivArt" appears on the second line of the bio, above the project mention,
- * which is where a creator puts the tag they want fan art under. Nothing else is
- * listed, so nothing else is here.
+ * Taken from her own listing rather than scraped out of a timeline, because the
+ * timeline is full of other people's words -- an earlier pass picked up
+ * #VtuberDebut and #tapiocaalice from a post promoting another creator's debut,
+ * which would have been a guess dressed as a fact.
+ *
+ * `#SierraonAir` and `#Sierramoonclips` are not in the X bio; they are the live and
+ * clip tags she lists alongside the other two, and they are what the fanart and
+ * clip routes should be reading.
  */
-export const hashtags = [{ tag: "#MoonivArt", use: "Fan Art" }] as const;
+export const hashtags = [
+  { tag: "#SierraMooniva", use: "General" },
+  { tag: "#SierraonAir", use: "Live" },
+  { tag: "#MoonivArt", use: "Art" },
+  { tag: "#Sierramoonclips", use: "Clips" },
+] as const;
 
 /**
  * Affiliation, from the X bio.
@@ -130,14 +140,20 @@ export const affiliations = [
 /**
  * Series names exactly as they appear between the brackets in the upload titles.
  *
- * Read off the channel's own /videos tab. "COVER" is what she calls this channel
- * in practice -- the titles are almost entirely bracketed covers -- so it is the
- * one series listed. This channel is a cover channel: of the twelve newest
- * uploads, ten are bracketed covers, and the two that are not are an outfit
- * reveal and a mascot. That is the plain reading of the channel and the page says
- * so rather than implying a stream schedule it does not have.
+ * Read off both of her tabs, not just the one that was convenient. The /videos tab
+ * is bracketed COVER almost throughout; the /streams tab is bracketed game
+ * titles, several of them a series she is partway through -- Fire Emblem: Fortune's
+ * Weave runs "#1" through "#4" across separate uploads, which is what a running
+ * playthrough looks like.
+ *
+ * An earlier version of this file listed COVER alone and called the channel a
+ * cover channel. That came from reading /videos and generalising. Both tabs are
+ * hers, so both are here.
  */
-export const series = [{ name: "COVER", kind: "Cover" }] as const;
+export const series = [
+  { name: "COVER", kind: "Cover" },
+  { name: "Fire Emblem: Fortune's Weave", kind: "Playthrough" },
+] as const;
 
 /**
  * Colophon. A credit line naming who built the page. Kept as a footnote, not a

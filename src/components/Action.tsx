@@ -10,12 +10,17 @@ const BASE =
   "disabled:pointer-events-none disabled:opacity-55";
 
 /**
- * `primary` is the near-black ground fill. Chosen over the crimson fill because
- * the brand's own crimson (#D32F2F) only reaches about 4:1 against the pale
- * surface, which fails as a button background. Ground on gold clears 8:1.
+ * `primary` is the gold fill on the near-black ground text.
+ *
+ * It was `bg-ground text-bg`, which reads fine in the light theme and is
+ * invisible in the dark one: `--ground` and `--bg` are the same `#1A0003` there,
+ * so the label and the fill were the same colour. Gold on ground measures 9.6:1
+ * and ground on gold the same, so this one pair passes in both themes instead of
+ * one. Hover moves to the crimson fill, which keeps its own 4.7:1 against
+ * `--on-crimson` rather than inheriting a colour that only worked once.
  */
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-ground text-bg hover:bg-crimson-deep hover:text-bg",
+  primary: "bg-gold text-ground hover:bg-crimson hover:text-on-crimson",
   // Transparent with a real 1px stroke. The stroke is load-bearing: without it
   // the button disappears into the page.
   quiet: "border border-line-strong text-fg hover:bg-surface hover:border-crimson-deep",

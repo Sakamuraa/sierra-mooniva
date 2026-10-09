@@ -7,22 +7,21 @@ import { hashtags, site } from "@/content/site";
 /**
  * Profile.
  *
- * Every claim on this page comes from a place that can be checked. The previous
- * version of this file -- inherited from the clone -- carried a character
- * descriptor, a venue name, a Live 2D format, a join date and a set of measured
- * stream intervals, and none of those belonged to Sierra Mooniva. They have been
- * replaced with what her own channel and X bio actually say, and with nothing
- * else.
+ * Every claim here comes from a place that can be checked. The version inherited
+ * from the clone carried a character descriptor, a venue name, a Live 2D format, a
+ * join date and a set of measured stream intervals, none of which belonged to
+ * Sierra Mooniva.
  *
- * Concretely, what was removed and why:
- *   - "Bintang Nyasar", "Starpaw Cafe", "Cat Cafe" ......... the clone creator's
- *   - "Live 2D" and the model/rig credit block ............. hers; hers is a cover
- *     channel, and she claims no such credits in her bio
- *   - "delapan stream terakhir berjarak sembilan hari" .... measured off the other
- *     channel's streams, and this one does not stream on that cadence
- *   - the join date ........................................ not read off her own
- *     header, and the /about page carries other channels' metadata, so it is not
- *     stated at all rather than stated wrongly
+ * What was removed, and why:
+ *   - "Bintang Nyasar", "Starpaw Cafe", "Cat Cafe" .... the clone creator's
+ *   - "Live 2D" and the model/rig credit block ........ she claims no such
+ *     credits in her bio
+ *   - "delapan stream terakhir berjarak sembilan hari" ... measured off the other
+ *     channel's streams
+ *   - the join date ................................... not read off her own header,
+ *     and the /about page carries other channels' metadata
+ *   - a "cover channel, never streams" claim .......... read off /videos and never
+ *     checked against /streams. She streams. Both tabs are hers.
  *
  * `detail` promotes the heading to an h1 and pads the top, for when this is the
  * whole page rather than the closing block of the home page. Two headings on one
@@ -103,19 +102,15 @@ export function Profile({ detail = false }: { detail?: boolean } = {}) {
 
           <Reveal className="md:col-span-6 md:col-start-7" delay={0.08} amount={0.3}>
             {/*
-              What this channel actually is, read off the titles rather than
-              asserted. Of the twelve newest uploads on her /videos tab, ten are
-              bracketed covers and the other two are an outfit reveal and a mascot
-              post. That is the plain reading, and it is why this page says
-              "cover" and never says "stream".
+              Both columns are read off her own tabs rather than asserted, and the
+              second one is a correction: an earlier version of this file claimed
+              the channel was covers only, on the strength of the /videos tab
+              alone. The /streams tab says otherwise, and it says it clearly --
+              Fire Emblem, Kitaria Fables 2, DotA 2, VALORANT, plus collabs. Both
+              tabs are hers; reading one and generalising from it is how a cover
+              channel became a claim about a streaming channel.
             */}
-            <p className="max-w-[54ch] text-base leading-relaxed text-fg-muted md:text-lg">
-              Bio resminya menyebut JRPG, dan menyebut dirinya virtual corporate
-              secretary. Isi channel-nya cover: sebagian besar upload titled
-              berlabel COVER, sisanya kostum dan maskot.
-            </p>
-
-            <StaggerGroup className="mt-10 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-3">
+            <StaggerGroup className="mt-0 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
               <StaggerItem className="bg-surface p-5">
                 <p className="text-xs font-medium uppercase tracking-[0.12em] text-fg-subtle">
                   Bahasa
@@ -128,13 +123,7 @@ export function Profile({ detail = false }: { detail?: boolean } = {}) {
                 <p className="text-xs font-medium uppercase tracking-[0.12em] text-fg-subtle">
                   Isi channel
                 </p>
-                <p className="mt-2 text-sm leading-snug text-fg">Cover</p>
-              </StaggerItem>
-              <StaggerItem className="bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-fg-subtle">
-                  Suka main
-                </p>
-                <p className="mt-2 text-sm leading-snug text-fg">JRPG</p>
+                <p className="mt-2 text-sm leading-snug text-fg">Stream dan cover</p>
               </StaggerItem>
             </StaggerGroup>
 
