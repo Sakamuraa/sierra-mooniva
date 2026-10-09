@@ -1,4 +1,5 @@
 ﻿import { motion, useReducedMotion } from "motion/react";
+import { useState } from "react";
 
 import { ActionLink } from "@/components/Action";
 import { XMark, YoutubeMark } from "@/components/ChannelIcons";
@@ -16,18 +17,33 @@ import { EASE_OUT_EXPO } from "@/lib/reveal-motion";
  * hero is a framed document instead:
  *
  *   - the whole hero is one hairline-bordered panel, not two floating columns
- *   - the avatar is a small rectangular inset, the size a photo on a document
- *     actually is, rather than a portrait that fills half the viewport
  *   - gold rules divide the panel into header / name / bio / actions, so the
  *     sections read as fields on a form rather than as a page's worth of blocks
  *   - the name is set in the didone at display size, which is where Bodoni earns
  *     its contrast; the same face at body size would be unreadable
+ *
+ * Two arrangements, chosen by whether site.heroBackground is set.
+ *
+ * With artwork: the avatar inset is gone entirely and the picture sits behind the
+ * whole panel. Not beside it — beside is what it was doing before, and it read as
+ * a document with a photo stapled to it. Behind is what puts the artwork in the
+ * room rather than in a frame next to the room.
+ *
+ * Without: the inset returns, and the panel stays translucent as before.
  *
  * Height is `min-h-[calc(100dvh-4rem)]`, never `h-screen`, so a collapsing mobile
  * address bar cannot clip the actions.
  */
 export function Hero() {
   const reduceMotion = useReducedMotion();
+
+  const artwork = site.heroBackground;
+  const [artIndex, setArtIndex] = useState(0);
+  const artSrc = artwork ? artwork.sources[artIndex] : null;
+  // Only report the artwork to a screen reader once something has actually
+  // loaded. A broken first candidate must not leave a caption describing a
+  // picture that never appeared.
+  const [artLoaded, setArtLoaded] = useState(false);
 
   const enter = (delay: number) =>
     reduceMotion
@@ -38,6 +54,16 @@ export function Hero() {
           transition: { duration: 0.65, delay, ease: EASE_OUT_EXPO },
         };
 
+  const onArtError = () => {
+    // Try the next candidate. When they run out, fall back to the inset: a hero
+    // with no picture is fine, a hero with a broken image element is not.
+    if (artwork && artIndex < artwork.sources.length - 1) {
+      setArtIndex((i) => i + 1);
+      return;
+    }
+    setArtLoaded(false);
+  };
+
   return (
     <section id="atas" className="relative isolate overflow-hidden" aria-labelledby="hero-name">
       <div aria-hidden="true" className="dawn-wash absolute inset-0 -z-10" />
@@ -46,12 +72,68 @@ export function Hero() {
         <motion.div
           {...enter(0.04)}
           /*
-            The frame. A single bordered panel with the avatar inset into its top
-            left corner, overlapping the header rule — which is what stops this
-            reading as a card with a picture on it.
+            The frame. One bordered panel. With artwork it becomes the frame for
+            the picture; without, it is the document itself.
           */
-          className="relative border border-line-strong/60 bg-surface/40"
+          className="relative isolate overflow-hidden border border-line-strong/60"
         >
+          {/*
+            The artwork, behind everything.
+
+            object-right so the character stays in frame: these illustrations put
+            the figure off-centre, and object-cover anchored centre would crop her
+            out in favour of the skyline.
+
+            It is an <img>, not a CSS background, because `onError` is how the
+            next candidate is tried when a file is missing. A CSS background that
+            404s is simply not painted, and there is no event to notice it by.
+          */}
+          {artSrc && (
+            <img
+              src={asset(artSrc)}
+              alt={artLoaded && artwork ? artwork.alt : ""}
+              // Above the fold and the largest paint on the page: fetch it first
+              // and decode eagerly. A GIF cannot be progressively painted, so
+              // eager decode is the difference between a hero that appears and a
+              // hero that pops in late.
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              onLoad={() => setArtLoaded(true)}
+              onError={onArtError}
+              className="absolute inset-0 -z-10 size-full object-cover object-right"
+            />
+          )}
+
+          {/*
+            The scrim, and the reason the text is still readable.
+
+            Two gradients doing different jobs. The horizontal one is opaque
+            under the text column and thins out towards the artwork on the right,
+            so the picture is visible where there is nothing to read and hidden
+            where there is. The vertical one is a separate top-down wash that
+            keeps the header rule legible over a bright sky.
+
+            Both are anchored to this site's ground colour rather than to black.
+            A neutral black over a crimson-black panel reads as a grey haze.
+          */}
+          {artLoaded && (
+            <>
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 bg-gradient-to-r from-[#1a0003]/95 via-[#1a0003]/85 to-[#1a0003]/40"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-[#1a0003]/85 to-transparent"
+              />
+            </>
+          )}
+
+          {!artLoaded && (
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-surface/40" />
+          )}
+
           {/* Header row: who she is, and the channel mark. */}
           <div className="flex items-center justify-between gap-4 border-b border-line-strong/40 px-6 py-4 md:px-8">
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-accent">
@@ -62,29 +144,39 @@ export function Hero() {
             </p>
           </div>
 
-          <div className="grid gap-8 px-6 py-8 md:grid-cols-[auto_1fr] md:gap-10 md:px-8 md:py-10">
+          <div
+            className={
+              artLoaded
+                ? "px-6 py-8 md:px-8 md:py-10"
+                : "grid gap-8 px-6 py-8 md:grid-cols-[auto_1fr] md:gap-10 md:px-8 md:py-10"
+            }
+          >
             {/*
-              The inset. Square, sharp-cornered, pulled up over the header rule so
-              it reads as a document photo rather than an illustration.
-            */}
-            <figure className="relative -mt-12 shrink-0 self-start md:-ml-12 md:mt-6">
-              <div className="border border-gold/50 bg-surface-deep p-1.5">
-                <img
-                  src={asset(site.avatar)}
-                  alt={site.avatarAlt}
-                  width={800}
-                  height={800}
-                  // Above the fold and the largest paint: fetch early, decode
-                  // eagerly, and keep the square ratio reserved so CLS stays 0.
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                  className="size-28 object-cover md:size-40"
-                />
-              </div>
-            </figure>
+              The inset, only when there is no artwork behind the panel.
 
-            <div className="min-w-0">
+              Square, sharp-cornered, pulled up over the header rule so it reads as
+              a document photo rather than an illustration.
+            */}
+            {!artLoaded && (
+              <figure className="relative -mt-12 shrink-0 self-start md:-ml-12 md:mt-6">
+                <div className="border border-gold/50 bg-surface-deep p-1.5">
+                  <img
+                    src={asset(site.avatar)}
+                    alt={site.avatarAlt}
+                    width={800}
+                    height={800}
+                    // Above the fold and the largest paint: fetch early, decode
+                    // eagerly, and keep the square ratio reserved so CLS stays 0.
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    className="size-28 object-cover md:size-40"
+                  />
+                </div>
+              </figure>
+            )}
+
+            <div className={artLoaded ? "max-w-[52ch]" : "min-w-0"}>
               <motion.h1
                 {...enter(0.1)}
                 id="hero-name"

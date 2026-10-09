@@ -54,6 +54,26 @@ export const site = {
   role: "Virtual Corporate Secretary",
   /** What she is on the channel, in her own words. */
   identity: "VTuber · Stream · Cover · JRPG",
+  /**
+   * Hero background, tried in order until one loads.
+   *
+   * When this list is set the hero drops the avatar inset entirely and lays the
+   * artwork in behind the letterhead panel instead, with the text still on top.
+   * Set to null to go back to the framed inset.
+   *
+   * An array rather than one path, because the file is supplied as artwork and
+   * the natural export is a GIF while the natural delivery format is WebP. An
+   * <img> is used rather than a CSS background-image specifically so this can
+   * work: `onError` is the only way to try the next candidate, and a CSS
+   * background that 404s is simply invisible with nothing to catch it.
+   *
+   * Whatever is dropped in at public/media/hero-background.* is picked up without
+   * touching this file.
+   */
+  heroBackground: {
+    sources: ["/media/hero-background.gif", "/media/hero-background.webp", "/media/hero-background.png"],
+    alt: "Sierra Mooniva di kota neon",
+  } as { sources: readonly string[]; alt: string } | null,
 } as const;
 
 /**
