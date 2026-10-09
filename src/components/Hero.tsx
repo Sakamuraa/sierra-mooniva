@@ -80,9 +80,18 @@ export function Hero() {
           {/*
             The artwork, behind everything.
 
-            object-right so the character stays in frame: these illustrations put
-            the figure off-centre, and object-cover anchored centre would crop her
-            out in favour of the skyline.
+            object-[50%_calc(50%-4px)] on mobile, object-[100%_calc(50%+5px)] from
+            md up. Centred below md because the panel is nearly the viewport width
+            there and an image anchored to the right edge puts the character
+            half off-screen; anchored right above md, where there is room for the
+            picture beside the text rather than under it.
+
+            The vertical offsets read the way they do because object-position
+            moves the image, not the subject. A negative offset raises the image
+            and therefore clips more off the top -- which is how the first attempt
+            at this cut the character's head off. To show more of the top of the
+            artwork the image has to move down, so the desktop offset is positive
+            and only the mobile one is negative.
 
             It is an <img>, not a CSS background, because `onError` is how the
             next candidate is tried when a file is missing. A CSS background that
@@ -101,7 +110,7 @@ export function Hero() {
               decoding="async"
               onLoad={() => setArtLoaded(true)}
               onError={onArtError}
-              className="absolute inset-0 -z-10 size-full object-cover object-right"
+              className="absolute inset-0 -z-10 size-full object-cover object-[50%_calc(50%-4px)] md:object-[100%_calc(50%+5px)]"
             />
           )}
 
