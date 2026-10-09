@@ -1,0 +1,278 @@
+﻿@import "tailwindcss";
+@import "@fontsource-variable/bodoni-moda/index.css";
+@import "@fontsource-variable/jost/index.css";
+
+/* ==========================================================================
+   Design tokens
+   --------------------------------------------------------------------------
+   Palette comes straight from the brand brief:
+      shadow / ground ......... #1A0003   dark crimson-black
+      base  / primary ........ #D32F2F   vibrant crimson
+      highlight / gold ........ #E5A93C   warm amber gold
+
+   All three are drawn from the character's own design: the crimson from the
+   flower in the hair and the red in the eyes, the gold from the hair ornaments
+   and the clothing, the near-black from the hair's cool shadow. The theme is
+   dark-first, so dark is the default below and light is the alternate rather
+   than the other way round.
+
+   Contrast is measured, not eyeballed, and the numbers are recorded in
+   README.md with the pairs that were checked in both themes.
+
+   One consequence of the brief, recorded so it is not "fixed" by accident: the
+   gold is a warm mid-tone and cannot reach 3:1 against the crimson, nor 4.5:1
+   against the near-black ground for body text. It is used for what the brief
+   wants it for — numerals, rules, badges, the seal — and never as the only
+   boundary between two surfaces. Those are carried by --line-strong and
+   --fg-muted, which do clear their thresholds.
+
+   Shape rule, applied without exception, and deliberately the opposite of the
+   blue site this was cloned from:
+      media frames ............ 4px    rectangular, gold rule, not an arch
+      cards / panels ......... 4px
+      buttons ................ 4px, squared off, never pill
+      tags ................... 4px
+   A rounded page and a sharp page are different languages, and this character's
+   is a framed document: a monarch's letterhead, a secretary's dossier.
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #fdf6f5;
+  --surface: #fbe9e7;
+  --surface-deep: #f6d9d7;
+
+  --line: #eec9c5;
+  --line-strong: #9e3030;
+
+  --fg: #2a0508;
+  --fg-muted: #6d1a1c;
+  --fg-subtle: #8a3a38;
+
+  --accent: #b32424;
+  --accent-contrast: #fdf6f5;
+  --accent-soft: #f6d9d7;
+
+  --ring: #b32424;
+
+  /* Brand tones, used as large fills and as light rather than as text colours. */
+  --crimson: #d32f2f;
+  --crimson-deep: #a32222;
+  --ground: #1a0003;
+  --gold: #e5a93c;
+  /* Text placed ON a brand fill. */
+  --on-crimson: #fff6ee;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Dark is the default for this character: the brief's ground colour is
+     near-black crimson, and the light theme is the alternate. */
+  --bg: #1a0003;
+  --surface: #2a0a0c;
+  --surface-deep: #3a1113;
+
+  --line: #4d1a1c;
+  --line-strong: #d32f2f;
+
+  --fg: #f7e6e4;
+  --fg-muted: #e8b9b7;
+  --fg-subtle: #c08b89;
+
+  --accent: #e5a93c;
+  --accent-contrast: #1a0003;
+  --accent-soft: #3a1113;
+
+  --ring: #e5a93c;
+
+  /* The brand tones stay put across both themes. They are the brief. */
+  --crimson: #d32f2f;
+  --crimson-deep: #8f1d1d;
+  --ground: #1a0003;
+  --gold: #e5a93c;
+  --on-crimson: #fff6ee;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-deep: var(--surface-deep);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-crimson: var(--crimson);
+  --color-crimson-deep: var(--crimson-deep);
+  --color-ground: var(--ground);
+  --color-gold: var(--gold);
+  --color-on-crimson: var(--on-crimson);
+
+  /* Bodoni Moda for display. A didone — high stroke contrast, hairline serifs,
+     engraved capitals. It reads as a letterhead or a seal, which is what a
+     corporate secretary with a monarch's palette wants. The soft rounded
+     display face on the blue sibling site would be the wrong century. */
+  --font-display: "Bodoni Moda Variable", "Didot", "Playfair Display", Georgia,
+    serif;
+  /* Jost for everything else. A geometric sans with a Futura skeleton, so it
+     sits under the didone without echoing it, and its flat terminals keep the
+     small caption text legible at 12px. */
+  --font-sans: "Jost Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+
+  /* Sharp on purpose. The arch is gone; these are the corners of a document. */
+  --radius-arch: 4px;
+  --radius-card: 4px;
+  --radius-btn: 4px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  /* Only the theme switch animates. Every other transition is declared on the
+     component that needs it, so this cannot smear across scroll. */
+  body,
+  body * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 280ms;
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+::selection {
+    background: var(--gold);
+    color: var(--ground);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  /* Paper grain. Fixed and pointer-events-none on purpose: the same noise on a
+     scrolling container repaints the GPU every frame and drops mobile FPS. */
+  .grain::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Light spilling from the top of the page — crimson bloom and a low gold
+     gold. A gradient, not an image: zero bytes on the critical path and no
+     layout shift. */
+  .dawn-wash {
+    background:
+      radial-gradient(
+        46rem 26rem at 82% -10%,
+        color-mix(in oklab, var(--crimson) 42%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        34rem 22rem at 4% 0%,
+        color-mix(in oklab, var(--gold) 34%, transparent),
+        transparent 72%
+      );
+  }
+
+  /* Diagonal hairline field. Sits behind the colophon only, where the density
+     is high enough to carry texture. */
+  .pinstripe {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--line-strong) 22%, transparent) 0 1px,
+      transparent 1px 9px
+    );
+  }
+
+  .rule {
+    background-image: linear-gradient(
+      to right,
+      var(--line-strong) 0 32%,
+      transparent 32% 100%
+    );
+    height: 1px;
+  }
+}
+
+/* Motion collapses to instant under this query. Everything animated on the
+   page is decorative or feedback, so removing it costs no information. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print and "save as PDF": any block still waiting on its IntersectionObserver
+   is forced to its final state, so the saved page has no empty sections. */
+@media print {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
