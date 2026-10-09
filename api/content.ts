@@ -870,6 +870,8 @@ let lastGood: {
   liveCount: number;
   /** False when a tab was missing and its list was carried over. */
   complete: boolean;
+  /** True when the payload carries a scheduled broadcast. */
+  upcoming: boolean;
 } | null = null;
 
 /**
@@ -885,6 +887,17 @@ let lastGood: {
 const MEMORY_TTL_PARTIAL_MS = 60 * 1000;
 const MEMORY_TTL_LIVE_MS = 10 * 60 * 1000;
 const MEMORY_TTL_QUIET_MS = 30 * 60 * 1000;
+/**
+ * Scheduled but not started.
+ *
+ * Deliberately the shortest of the three. A scheduled broadcast is the one piece
+ * of this data that is about to stop being true: the next request is the one
+ * that finds out whether it has started. Caching it on the quiet tier meant a
+ * stream could begin while the page still said "Mendatang", for as long as the
+ * cache lasted.
+ */
+const MEMORY_TTL_UPCOMING_MS = 20 * 1000;
+
 
 export default async function handler(req: UploadsRequest, res: UploadsResponse) {
   if (req.method && req.method !== "GET") {
@@ -901,18 +914,22 @@ export default async function handler(req: UploadsRequest, res: UploadsResponse)
   if (lastGood) {
     const ttl = !lastGood.complete
       ? MEMORY_TTL_PARTIAL_MS
-      : lastGood.liveCount > 0
-        ? MEMORY_TTL_LIVE_MS
-        : MEMORY_TTL_QUIET_MS;
+      : lastGood.upcoming
+        ? MEMORY_TTL_UPCOMING_MS
+        : lastGood.liveCount > 0
+          ? MEMORY_TTL_LIVE_MS
+          : MEMORY_TTL_QUIET_MS;
 
     if (Date.now() - lastGood.at < ttl) {
       res.setHeader(
         "Cache-Control",
         !lastGood.complete
           ? "public, s-maxage=60, stale-while-revalidate=300"
-          : lastGood.liveCount > 0
-            ? "public, s-maxage=300, stale-while-revalidate=600"
-            : "public, s-maxage=3600, stale-while-revalidate=86400",
+          : lastGood.upcoming
+            ? "public, s-maxage=20, stale-while-revalidate=45"
+            : lastGood.liveCount > 0
+              ? "public, s-maxage=300, stale-while-revalidate=600"
+              : "public, s-maxage=3600, stale-while-revalidate=86400",
       );
       res.setHeader("X-Data-Source", lastGood.complete ? "memory" : "memory-partial");
       res.status(200).json(lastGood.payload);
@@ -1003,15 +1020,17 @@ export default async function handler(req: UploadsRequest, res: UploadsResponse)
    */
   const complete = freshStreams.length > 0 && freshVideos.length > 0 && freshClips.length > 0;
 
-  lastGood = { payload, at: Date.now(), liveCount, complete };
+  lastGood = { payload, at: Date.now(), liveCount, complete, upcoming: upcoming !== null };
 
   res.setHeader(
     "Cache-Control",
     !complete
       ? "public, s-maxage=60, stale-while-revalidate=300"
-      : liveCount > 0
-        ? "public, s-maxage=300, stale-while-revalidate=600"
-        : "public, s-maxage=3600, stale-while-revalidate=86400",
+      : upcoming
+        ? "public, s-maxage=20, stale-while-revalidate=45"
+        : liveCount > 0
+          ? "public, s-maxage=300, stale-while-revalidate=600"
+          : "public, s-maxage=3600, stale-while-revalidate=86400",
   );
   res.setHeader("X-Data-Source", complete ? "live" : "partial");
   res.status(200).json(payload);
