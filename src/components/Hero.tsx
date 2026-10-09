@@ -22,14 +22,9 @@ import { EASE_OUT_EXPO } from "@/lib/reveal-motion";
  *   - the name is set in the didone at display size, which is where Bodoni earns
  *     its contrast; the same face at body size would be unreadable
  *
- * Two arrangements, chosen by whether site.heroBackground is set.
- *
- * With artwork: the avatar inset is gone entirely and the picture sits behind the
- * whole panel. Not beside it — beside is what it was doing before, and it read as
- * a document with a photo stapled to it. Behind is what puts the artwork in the
- * room rather than in a frame next to the room.
- *
- * Without: the inset returns, and the panel stays translucent as before.
+ * The artwork sits behind the whole panel rather than beside it. Beside is what
+ * it used to do, and it read as a document with a photo stapled to it; behind is
+ * what puts the artwork in the room rather than in a frame next to the room.
  *
  * Height is `min-h-[calc(100dvh-4rem)]`, never `h-screen`, so a collapsing mobile
  * address bar cannot clip the actions.
@@ -55,11 +50,20 @@ export function Hero() {
   const reduceMotion = useReducedMotion();
 
   const artwork = site.heroBackground;
-  const [artIndex, setArtIndex] = useState(0);
-  const artSrc = artwork ? artwork.sources[artIndex] : null;
-  // Only report the artwork to a screen reader once something has actually
-  // loaded. A broken first candidate must not leave a caption describing a
-  // picture that never appeared.
+  // One artwork, loaded directly.
+  //
+  // This used to walk a candidate list and hold an avatar inset on screen until
+  // a picture appeared, branching the whole panel three ways on a loading flag.
+  // There is exactly one committed asset, so the list was one entry with two
+  // permanent 404s behind it, and the branch was a flash of the avatar on every
+  // cold load -- the placeholder appearing to be replaced by the thing it was a
+  // placeholder for. The card now renders once.
+  //
+  // `artLoaded` still earns its keep, but for a narrower job: holding back the
+  // artwork's dark text tokens and the scrim until the pixels are actually there,
+  // so pale text is never painted over a background that has not arrived. That is
+  // a paint-ordering concern, not a fallback.
+  const artSrc = artwork ? artwork.sources[0] : null;
   const [artLoaded, setArtLoaded] = useState(false);
 
   const enter = (delay: number) =>
@@ -70,16 +74,6 @@ export function Hero() {
           animate: { opacity: 1, y: 0 },
           transition: { duration: 0.65, delay, ease: EASE_OUT_EXPO },
         };
-
-  const onArtError = () => {
-    // Try the next candidate. When they run out, fall back to the inset: a hero
-    // with no picture is fine, a hero with a broken image element is not.
-    if (artwork && artIndex < artwork.sources.length - 1) {
-      setArtIndex((i) => i + 1);
-      return;
-    }
-    setArtLoaded(false);
-  };
 
   return (
     <section id="atas" className="relative isolate overflow-hidden" aria-labelledby="hero-name">
@@ -160,7 +154,6 @@ export function Hero() {
               fetchPriority="high"
               decoding="async"
               onLoad={() => setArtLoaded(true)}
-              onError={onArtError}
               className="absolute inset-0 -z-10 size-full object-cover object-[50%_calc(50%-4px)] md:object-[100%_calc(50%+5px)]"
             />
           )}
@@ -190,10 +183,6 @@ export function Hero() {
             </>
           )}
 
-          {!artLoaded && (
-            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-surface/40" />
-          )}
-
           {/* Header row: who she is, and the channel mark. */}
           <div className="flex items-center justify-between gap-4 border-b border-line-strong/40 px-6 py-4 md:px-8">
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-accent">
@@ -204,39 +193,8 @@ export function Hero() {
             </p>
           </div>
 
-          <div
-            className={
-              artLoaded
-                ? "px-6 py-8 md:px-8 md:py-10"
-                : "grid gap-8 px-6 py-8 md:grid-cols-[auto_1fr] md:gap-10 md:px-8 md:py-10"
-            }
-          >
-            {/*
-              The inset, only when there is no artwork behind the panel.
-
-              Square, sharp-cornered, pulled up over the header rule so it reads as
-              a document photo rather than an illustration.
-            */}
-            {!artLoaded && (
-              <figure className="relative -mt-12 shrink-0 self-start md:-ml-12 md:mt-6">
-                <div className="border border-gold/50 bg-surface-deep p-1.5">
-                  <img
-                    src={asset(site.avatar)}
-                    alt={site.avatarAlt}
-                    width={800}
-                    height={800}
-                    // Above the fold and the largest paint: fetch early, decode
-                    // eagerly, and keep the square ratio reserved so CLS stays 0.
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                    className="size-28 object-cover md:size-40"
-                  />
-                </div>
-              </figure>
-            )}
-
-            <div className={artLoaded ? "max-w-[52ch]" : "min-w-0"}>
+          <div className="px-6 py-8 md:px-8 md:py-10">
+            <div className="max-w-[52ch]">
               <motion.h1
                 {...enter(0.1)}
                 id="hero-name"

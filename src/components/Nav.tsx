@@ -1,5 +1,5 @@
 ﻿import { Moon, Sun } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { ActionLink } from "@/components/Action";
 import { HeartMark, XMark, YoutubeMark } from "@/components/ChannelIcons";
@@ -150,33 +150,36 @@ export function Nav({
   );
 }
 
-/** Footer row of channel links, same treatment as the nav. */
+/**
+ * Footer row of channel links.
+ *
+ * Generated from `channels` rather than listed out. This used to be a hand-built
+ * array of three, which meant the footer and the /channel page could disagree
+ * about which channels she has -- and they already did, once.
+ *
+ * Only the two with a brand mark get one. Phosphor ships no Twitch, Facebook,
+ * Instagram, Tako, Trakteer or Sociabuzz logo, and reaching for a generic glyph
+ * on all seven would be decoration pretending to be recognition. Those render as
+ * the wordmark alone, which is also what a footer this size wants.
+ */
 export function ChannelButtons() {
-  const items = [
-    {
-      label: channels.youtube.label,
-      handle: channels.youtube.handle,
-      url: channels.youtube.url,
-      icon: <YoutubeMark size={18} />,
-    },
-    {
-      label: channels.x.label,
-      handle: channels.x.handle,
-      url: channels.x.url,
-      icon: <XMark size={18} />,
-    },
-    {
-      label: channels.website.label,
-      handle: channels.website.handle,
-      url: channels.website.url,
-      icon: <HeartMark size={18} />,
-    },
-  ];
+  const icons: Partial<Record<keyof typeof channels, ReactNode>> = {
+    youtube: <YoutubeMark size={18} />,
+    x: <XMark size={18} />,
+    website: <HeartMark size={18} />,
+  };
+
+  const items = (Object.keys(channels) as (keyof typeof channels)[]).map((key) => ({
+    key,
+    label: channels[key].label,
+    url: channels[key].url,
+    icon: icons[key],
+  }));
 
   return (
     <ul className="flex flex-wrap items-center gap-2">
       {items.map((item) => (
-        <li key={item.url}>
+        <li key={item.key}>
           <ActionLink href={item.url} external variant="quiet">
             {item.icon}
             {item.label}

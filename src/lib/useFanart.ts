@@ -45,6 +45,15 @@ type State = {
   nextCursor: string | null;
   /** True while a "load more" is in flight, so the button cannot be double-fired. */
   loadingMore: boolean;
+  /**
+   * How many items the first response carried.
+   *
+   * Everything past this index was appended after the grid had already animated
+   * in, so it has to skip its entrance -- see the note on StaggerItem's
+   * `immediate`. Tracked here rather than derived from the list length so that
+   * re-merging a page that adds nothing new does not reset the boundary.
+   */
+  initialCount: number;
 };
 
 /** Kept in step with api/fanart.ts so the two cannot disagree on page size. */
@@ -103,6 +112,7 @@ export function useFanart(): State & { loadMore: () => void } {
     searchUrl: "https://x.com/search?q=%23Moonivart&src=typed_query&f=live",
     nextCursor: null,
     loadingMore: false,
+    initialCount: 0,
   });
 
   // Kept in a ref rather than read from state inside loadMore: the callback has
@@ -133,6 +143,9 @@ export function useFanart(): State & { loadMore: () => void } {
           searchUrl: payload.searchUrl ?? prev.searchUrl,
           nextCursor: payload.nextCursor ?? null,
           loadingMore: false,
+          // Only the first response sets the boundary; a later poll that returns
+          // fewer items must not shrink it and re-animate rows already on screen.
+          initialCount: prev.initialCount || list.length,
         }));
       } catch {
         if (controller.signal.aborted) return;

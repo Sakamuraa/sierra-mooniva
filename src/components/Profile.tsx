@@ -1,6 +1,5 @@
 import { SealCheck } from "@phosphor-icons/react";
 
-import { StaggerGroup, StaggerItem } from "@/lib/reveal";
 import { Reveal } from "@/lib/reveal";
 import { hashtags, site } from "@/content/site";
 
@@ -74,6 +73,19 @@ export function Profile({ detail = false }: { detail?: boolean } = {}) {
               </h2>
             )}
 
+            {/*
+              The longer write-up, on the full page only. The home page keeps the
+              short quote below because a nine-sentence paragraph in the middle of
+              a landing page is a wall, and this is the page for people who came
+              to read about her.
+            */}
+            {detail &&
+              site.about.paragraphs.map((paragraph) => (
+                <p key={paragraph.slice(0, 24)} className="mt-6 text-base leading-relaxed text-fg-muted">
+                  {paragraph}
+                </p>
+              ))}
+
             <figure className="mt-8 border-l-2 border-gold pl-5">
               <SealCheck size={22} className="text-crimson" aria-hidden="true" />
               <blockquote className="mt-3 font-display text-xl leading-relaxed">
@@ -102,30 +114,20 @@ export function Profile({ detail = false }: { detail?: boolean } = {}) {
 
           <Reveal className="md:col-span-6 md:col-start-7" delay={0.08} amount={0.3}>
             {/*
-              Both columns are read off her own tabs rather than asserted, and the
-              second one is a correction: an earlier version of this file claimed
-              the channel was covers only, on the strength of the /videos tab
-              alone. The /streams tab says otherwise, and it says it clearly --
-              Fire Emblem, Kitaria Fables 2, DotA 2, VALORANT, plus collabs. Both
-              tabs are hers; reading one and generalising from it is how a cover
-              channel became a claim about a streaming channel.
+              Measured facts from her own site, as a definition list rather than
+              prose. Three of the four are numbers, and numbers set in a sentence
+              get skimmed past; in a list they get read.
             */}
-            <StaggerGroup className="mt-0 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
-              <StaggerItem className="bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-fg-subtle">
-                  Bahasa
-                </p>
-                <p className="mt-2 text-sm leading-snug text-fg">
-                  Inggris, dan Indonesia
-                </p>
-              </StaggerItem>
-              <StaggerItem className="bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-fg-subtle">
-                  Isi channel
-                </p>
-                <p className="mt-2 text-sm leading-snug text-fg">Stream dan cover</p>
-              </StaggerItem>
-            </StaggerGroup>
+            <dl className="grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
+              {site.about.facts.map((fact) => (
+                <div key={fact.label} className="bg-surface p-5">
+                  <dt className="text-xs font-medium uppercase tracking-[0.12em] text-fg-subtle">
+                    {fact.label}
+                  </dt>
+                  <dd className="mt-2 text-sm leading-snug text-fg">{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
 
             <ul className="mt-8 flex flex-wrap gap-2">
               {hashtags.map((tag) => (
@@ -140,6 +142,58 @@ export function Profile({ detail = false }: { detail?: boolean } = {}) {
             </ul>
           </Reveal>
         </div>
+
+        {/*
+          Games. Its own band rather than another column: it is the one part of
+          this page that is about what she does rather than who she is, and it
+          reads better as a closing note than as a third fact box.
+        */}
+        {detail && (
+          <Reveal amount={0.2} delay={0.04}>
+            <div className="mt-20 border-t border-line pt-12">
+              <h2 className="font-display text-2xl font-semibold tracking-tight text-fg">
+                Game
+              </h2>
+              <p className="mt-4 max-w-[58ch] text-base leading-relaxed text-fg-muted">
+                {site.about.gaming.lead}
+              </p>
+
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {site.about.gaming.genres.map((genre) => (
+                  <li
+                    key={genre}
+                    className="inline-flex items-center rounded-btn border border-line-strong px-3 py-1.5 text-sm text-fg-muted"
+                  >
+                    {genre}
+                  </li>
+                ))}
+              </ul>
+
+              <p className="mt-8 text-base leading-relaxed text-fg-muted">
+                Genre favoritnya{" "}
+                <strong className="font-semibold text-fg">{site.about.gaming.favourite}</strong>,
+                dan judul-judul yang paling ia sukai:
+              </p>
+
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {site.about.gaming.favourites.map((game) => (
+                  <li
+                    key={game}
+                    className="inline-flex items-center gap-2 rounded-btn border border-crimson/40 px-3 py-1.5 text-sm text-fg"
+                  >
+                    {game}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        )}
+
+        {detail && (
+          <p className="mt-14 text-xs leading-relaxed text-fg-subtle">
+            Seluruh isi halaman ini diambil dari {site.about.source}.
+          </p>
+        )}
       </div>
     </section>
   );

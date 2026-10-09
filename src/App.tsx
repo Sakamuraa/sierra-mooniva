@@ -6,7 +6,9 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { Konten } from "@/components/Konten";
 import { Nav } from "@/components/Nav";
+import { Outfit } from "@/components/Outfit";
 import { Profile } from "@/components/Profile";
+import { Project } from "@/components/Project";
 import { RevealFailsafe } from "@/components/RevealFailsafe";
 import { StreamPage } from "@/components/StreamPage";
 import { Tweets } from "@/components/Tweets";
@@ -16,7 +18,7 @@ import { ROUTES, type Route } from "@/content/site";
 /**
  * Page composition, and the routing that chooses it.
  *
- * Five routes, one bundle. The router is a table lookup rather than a library:
+ * Eleven routes, one bundle. The router is a table lookup rather than a library:
  * no nesting, no loaders, no params, so a dependency would be more machinery
  * than the routing itself.
  *
@@ -27,6 +29,9 @@ import { ROUTES, type Route } from "@/content/site";
  *   /konten/video      Uploads that are not broadcasts
  *   /konten/clips      Clips from other channels naming her
  *   /tweets            Recent posts
+ *   /fanart            Art posted by other people
+ *   /outfit            Outfit sheets, newest first
+ *   /project           Cover songs and tournament recordings
  *   /channel           Channel links
  *
  * The route list itself is imported from content/site.ts, so the nav and the
@@ -107,6 +112,8 @@ export default function App() {
         {route === "/konten/clips" ? <Konten category="clips" /> : null}
         {route === "/tweets" ? <Tweets /> : null}
         {route === "/fanart" ? <Fanart /> : null}
+        {route === "/outfit" ? <Outfit /> : null}
+        {route === "/project" ? <Project /> : null}
         {route === "/channel" ? <Channels standalone /> : null}
       </main>
 

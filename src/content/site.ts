@@ -71,9 +71,38 @@ export const site = {
    * touching this file.
    */
   heroBackground: {
-    sources: ["/media/hero-background.gif", "/media/hero-background.webp", "/media/hero-background.png"],
+    sources: ["/media/hero-background.webp"],
     alt: "Sierra Mooniva di kota neon",
   } as { sources: readonly string[]; alt: string } | null,
+
+  /**
+   * The longer self-description, for /tentang.
+   *
+   * Separate from `bio` on purpose. `bio` is the YouTube channel description,
+   * which is what the hero shows and is kept verbatim including "Slav-". This is
+   * the character write-up from her own Framer site, which is a different text
+   * about the same person and says more. Merging them would mean either editing
+   * her channel description or presenting a Framer paragraph as a channel
+   * description, and both are worse than having two labelled fields.
+   */
+  about: {
+    paragraphs: [
+      "Sierra Mooniva adalah seorang sekretaris korporat di Mooniva Black Company; ia memiliki atasan bernama ‘Moon’, dan ia sangat patuh kepadanya. Saat memiliki waktu luang, ia bermain game. Jika ia tidak bisa dihubungi, itu berarti ia sedang tidur, tetapi biasanya ia akan bangun jika atasannya menelepon dan memintanya melakukan tugas yang sebenarnya tidak terlalu penting. Ia suka makan kue, roti, dan minum minuman segar. Meskipun ia adalah seorang sekretaris perusahaan, ia sangat suka tidur. Ia selalu membantu bosnya dan mengikuti kemana pun bosnya pergi jika diminta.",
+    ] as const,
+    facts: [
+      { label: "Tanggal lahir", value: "24 November" },
+      { label: "Tinggi", value: "163 cm" },
+      { label: "Berat", value: "555 kg" },
+      { label: "Bahasa", value: "Indonesia, dan Inggris" },
+    ] as const,
+    gaming: {
+      lead: "Di waktu luangnya di luar jam kerja, Sierra Mooniva senang bermain game dan selalu berusaha menyelesaikannya, sering kali melakukan siaran langsung di platform seperti YouTube dan Twitch.",
+      genres: ["Action-adventure", "Shooter", "RPG", "MOBA", "RTS", "Soulslike", "Simulasi"],
+      favourite: "RPG, terutama JRPG",
+      favourites: ["Suikoden", "NieR", "Persona"],
+    },
+    source: "Halaman About di sierramooniva.framer.website",
+  } as const,
 } as const;
 
 /**
@@ -100,6 +129,42 @@ export const channels = {
     url: "https://x.com/SierraMooniva",
     note: "Update harian",
   },
+  twitch: {
+    label: "Twitch",
+    handle: "twitch.tv/sierramooniva",
+    url: "https://www.twitch.tv/sierramooniva",
+    note: "Live stream",
+  },
+  facebook: {
+    label: "Facebook",
+    handle: "sierra.mooniva",
+    url: "https://www.facebook.com/sierra.mooniva/",
+    note: "Konten dan pengumuman",
+  },
+  instagram: {
+    label: "Instagram",
+    handle: "@sierramooniva",
+    url: "https://www.instagram.com/sierramooniva/",
+    note: "Foto dan story",
+  },
+  tako: {
+    label: "Tako",
+    handle: "tako.id/SierraMooniva",
+    url: "https://tako.id/SierraMooniva",
+    note: "Support lewat gift",
+  },
+  trakteer: {
+    label: "Trakteer",
+    handle: "trakteer.id/sierramooniva",
+    url: "https://trakteer.id/sierramooniva",
+    note: "Support lewat gift",
+  },
+  sociabuzz: {
+    label: "Sociabuzz",
+    handle: "sociabuzz.com/sierramooniva/tribe",
+    url: "https://sociabuzz.com/sierramooniva/tribe",
+    note: "Support lewat tribe",
+  },
   website: {
     label: "Website",
     handle: "sierramooniva.framer.website",
@@ -123,6 +188,8 @@ export const ROUTES = [
   "/konten/clips",
   "/tweets",
   "/fanart",
+  "/outfit",
+  "/project",
   "/channel",
 ] as const;
 
@@ -195,5 +262,7 @@ export const navigation = [
   { label: "Konten", href: "/konten" },
   { label: "Tweets", href: "/tweets" },
   { label: "Fan Art", href: "/fanart" },
+  { label: "Outfit", href: "/outfit" },
+  { label: "Project", href: "/project" },
   { label: "Channel", href: "/channel" },
 ] as const satisfies ReadonlyArray<{ label: string; href: Route }>;

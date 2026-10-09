@@ -8,29 +8,31 @@ import { Reveal } from "@/lib/reveal";
  * row per channel, not cards. Kept separate from the upload grid above so the
  * page does not repeat a card layout twice in a row.
  */
-const ROWS = [
-  {
-    key: "youtube",
-    label: channels.youtube.label,
-    handle: channels.youtube.handle,
-    note: channels.youtube.note,
-    url: channels.youtube.url,
-  },
-  {
-    key: "x",
-    label: channels.x.label,
-    handle: channels.x.handle,
-    note: channels.x.note,
-    url: channels.x.url,
-  },
-  {
-    key: "website",
-    label: channels.website.label,
-    handle: channels.website.handle,
-    note: channels.website.note,
-    url: channels.website.url,
-  },
-];
+/**
+ * Every channel row.
+ *
+ * Built from `channels` by key rather than hand-listed. The previous version
+ * wrote out one object per channel, which meant adding one meant copying five
+ * fields by hand and there was nothing stopping the label drifting from the URL
+ * next to it. Iterating the table instead means a new channel in site.ts appears
+ * here on its own, in the order it was written there.
+ *
+ * `website` is deliberately last: it is not a channel in the way the others are,
+ * it is where the outfit sheets and the project list come from.
+ */
+const ROW_KEYS = [
+  "youtube",
+  "x",
+  "twitch",
+  "facebook",
+  "instagram",
+  "tako",
+  "trakteer",
+  "sociabuzz",
+  "website",
+] as const satisfies ReadonlyArray<keyof typeof channels>;
+
+const ROWS = ROW_KEYS.map((key) => ({ key, ...channels[key] }));
 
 /**
  * Channel links.
