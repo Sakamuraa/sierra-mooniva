@@ -192,7 +192,19 @@ export function useFanart(): State & { loadMore: () => void } {
           loadingMore: false,
           // Only the first response sets the boundary; a later poll that returns
           // fewer items must not shrink it and re-animate rows already on screen.
-          initialCount: prev.initialCount || list.length,
+          // Kept up with the rendered count, NOT the raw list length.
+          //
+          // This number is the boundary StaggerItem uses to decide which cards skip
+          // their entrance (`index >= initialCount`). Cards past it were mounted
+          // after the grid had already played and would otherwise sit at opacity 0
+          // -- laid out, unclickable, invisible.
+          //
+          // Deriving it from `list.length` while rendering `kept` broke exactly
+          // that: twelve duplicates meant 48 cards claimed for a grid holding 36,
+          // so the boundary landed past the end and every appended card after
+          // "load more" was invisible. The two numbers have to describe the same
+          // array.
+          initialCount: prev.initialCount || kept.length,
         }));
       } catch {
         if (controller.signal.aborted) return;

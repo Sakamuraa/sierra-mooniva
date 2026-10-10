@@ -202,14 +202,13 @@ function CuratedCard({ item }: { item: CuratedFanart }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 transition-colors hover:text-fg"
             >
-              {credit}
-              <ArrowSquareOut size={12} aria-hidden="true" />
-            </a>
-          ) : (
-            credit
-          )}
-          <span className="text-fg-subtle/80">karya Sierra</span>
-        </p>
+                {credit}
+                <ArrowSquareOut size={12} aria-hidden="true" />
+              </a>
+            ) : (
+              credit
+            )}
+          </p>
 
         {/*
           `mt-auto` with nothing above it pushes this to the bottom of the card, so
