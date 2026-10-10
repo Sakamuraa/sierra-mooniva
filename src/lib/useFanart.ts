@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { DUPLICATE_POST_IDS } from "@/content/fanart";
+
 export type Fanart = {
   id: string;
   /** Canonical x.com post. */
@@ -89,6 +91,42 @@ function merge(existing: Fanart[], incoming: Fanart[]): Fanart[] {
 }
 
 /**
+ * Drop what the wall would otherwise show twice.
+ *
+ * Two passes, both needed:
+ *
+ * The curated list already carries some of this artwork, so those posts go by id.
+ *
+ * Then the same media file is collapsed within the feed itself. Reposting on X
+ * reuses the original's media id rather than copying it, so a repost and the
+ * original arrive as two posts pointing at one image. That is not hypothetical
+ * here: BossNoMann's piece was in the feed twice for exactly that reason. Where
+ * both survive, the newer post wins, because the list is ordered newest first and
+ * the older one has already had its moment.
+ *
+ * Applied on every read rather than once at load, so a duplicate caught by a later
+ * poll is filtered too and the count cannot drift between refreshes.
+ */
+function withoutDuplicates(items: Fanart[]): Fanart[] {
+  const seenMedia = new Set<string>();
+  const out: Fanart[] = [];
+
+  for (const item of items) {
+    if (DUPLICATE_POST_IDS.has(item.id)) continue;
+
+    // pbs.twimg.com/media/<id>.<ext> -- the id is what stays the same across a
+    // repost, the extension does not.
+    const media = item.image.split("/").pop()?.replace(/\.[a-z]+$/i, "") ?? item.image;
+    if (seenMedia.has(media)) continue;
+
+    seenMedia.add(media);
+    out.push(item);
+  }
+
+  return out;
+}
+
+/**
  * Fan art posted under the hashtag.
  *
  * Polled on a long cycle. Art shows up whenever people feel like it rather than
@@ -135,10 +173,19 @@ export function useFanart(): State & { loadMore: () => void } {
 
         const payload = (await res.json()) as Payload;
         const list = Array.isArray(payload.fanart) ? payload.fanart.slice(0, FANART_LIMIT) : [];
+        const kept = withoutDuplicates(list);
 
         cursorRef.current = payload.nextCursor ?? null;
         setState((prev) => ({
-          fanart: list.length > 0 ? list : prev.fanart,
+          /*
+           * `kept`, not `list`. The previous value is only kept when the endpoint
+           * returned nothing at all, so a transient failure does not blank the wall.
+           * A response that consists entirely of curated duplicates is not a
+           * failure and must be allowed to render as the empty section it is --
+           * falling back here would leave stale posts on screen next to the very
+           * gallery they duplicate.
+           */
+          fanart: list.length > 0 ? kept : prev.fanart,
           reason: list.length > 0 ? "live" : "unavailable",
           searchUrl: payload.searchUrl ?? prev.searchUrl,
           nextCursor: payload.nextCursor ?? null,

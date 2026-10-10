@@ -5,6 +5,8 @@ import { Reveal, StaggerGroup, StaggerItem } from "@/lib/reveal";
 import { useFanart } from "@/lib/useFanart";
 import type { Fanart } from "@/lib/useFanart";
 
+import { CURATED_FANART, type CuratedFanart } from "@/content/fanart";
+
 /**
  * Fan art.
  *
@@ -30,8 +32,54 @@ export function Fanart() {
             Fan Art
           </h1>
           <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-fg-muted md:text-lg">
-            Ilustrasi yang orang buat buat Sierra, diambil dari posts bertanda{" "}
-            <span className="font-mono text-fg">#MoonivArt</span> di X.
+            Karya orang-orang yang menggambar Sierra. Koleksi miliknya sendiri ada di
+            bagian paling atas, lengkap dengan kredit tiap penggambarnya; di
+            bawahnya ada kiriman bertanda{" "}
+            <span className="font-mono text-fg">#MoonivArt</span> di X yang belum
+            masuk ke sana.
+          </p>
+        </Reveal>
+
+        {/*
+          Her own gallery first.
+
+          It is the credited one, and it is in the repository rather than behind a
+          feed -- so it is also the only part of this page that still renders when
+          the instance does not. Two sources that overlap by ten pieces are
+          presented as two sections rather than merged, because they answer
+          different questions: who drew this, and what has been posted lately.
+        */}
+        <div className="mt-14">
+          <Reveal amount={0.2}>
+            <h2 className="font-display text-2xl font-semibold tracking-tight">
+              Koleksi Sierra
+            </h2>
+            <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-fg-muted">
+              <span className="font-mono">{CURATED_FANART.length}</span> karya yang
+              dia tautkan sendiri, beserta nama penggambarnya.
+            </p>
+          </Reveal>
+
+          <StaggerGroup
+            className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
+            stagger={0.03}
+            amount={0.02}
+          >
+            {CURATED_FANART.map((item) => (
+              <StaggerItem key={item.id} className="min-w-0">
+                <CuratedCard item={item} />
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        </div>
+
+        <div className="mt-24">
+        <Reveal amount={0.3}>
+          <h2 className="font-display text-2xl font-semibold tracking-tight">
+            Dari #MoonivArt
+          </h2>
+          <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-fg-muted">
+            Kiriman terbaru yang belum masuk ke koleksi di atas.
           </p>
         </Reveal>
 
@@ -114,8 +162,73 @@ export function Fanart() {
             untuk lihat kredit dan konteksnya.
           </p>
         </Reveal>
+        </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * One piece from her own gallery.
+ *
+ * The credit is the point of this card, so the artist is the link and the image is
+ * not -- unlike a hashtag post, where the post itself is where the context lives.
+ * A piece with no linked profile renders the name as plain text rather than
+ * inventing an account to point at.
+ */
+function CuratedCard({ item }: { item: CuratedFanart }) {
+  const credit = (
+    <span className="font-semibold text-fg">{item.handle ? `@${item.handle}` : item.artist}</span>
+  );
+
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface">
+      <div className="overflow-hidden bg-surface-deep">
+        <img
+          src={item.image}
+          alt={`Ilustrasi fan art oleh ${item.artist}`}
+          loading="lazy"
+          decoding="async"
+          className="aspect-square w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+        />
+      </div>
+
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+        <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs text-fg-subtle">
+          {item.handle ? (
+            <a
+              href={item.href ?? "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 transition-colors hover:text-fg"
+            >
+              {credit}
+              <ArrowSquareOut size={12} aria-hidden="true" />
+            </a>
+          ) : (
+            credit
+          )}
+          <span className="text-fg-subtle/80">karya Sierra</span>
+        </p>
+
+        {/*
+          `mt-auto` with nothing above it pushes this to the bottom of the card, so
+          a row of cards lines up its footers even when the credits differ in
+          length -- the images above them are all square and all the same height.
+        */}
+        <p className="mt-auto pt-4 text-xs text-fg-subtle">
+          Dipinned dari{" "}
+          <a
+            href="https://sierramooniva.framer.website/fanart"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-4 transition-colors hover:text-fg"
+          >
+            galeri Sierra
+          </a>
+        </p>
+      </div>
+    </article>
   );
 }
 
