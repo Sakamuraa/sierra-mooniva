@@ -92,7 +92,7 @@ export const site = {
     facts: [
       { label: "Tanggal lahir", value: "24 November" },
       { label: "Tinggi", value: "163 cm" },
-      { label: "Berat", value: "555 kg" },
+      { label: "Berat", value: "55 kg" },
       { label: "Bahasa", value: "Indonesia, dan Inggris" },
     ] as const,
     gaming: {
