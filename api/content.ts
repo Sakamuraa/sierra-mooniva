@@ -754,14 +754,25 @@ function parseSearchResults(html: string): SearchEntry[] {
       age,
       ageSeconds: ageToSeconds(age),
       thumbnail: thumbnails[thumbnails.length - 1]?.url ?? "",
-      // A clip has to name her, and a common word alone is not naming her: it is also a
-      // children's cartoon and a Penguin-of-Africa brand. The identifying word is
-      // "Sierra Mooniva" - her channel title - or one of her handles; \s* so a caption
-      // written "PinguCh." still counts. Requiring it keeps the wall to people
-      // clipping the character rather than to whatever else shares the word.
-      mentions: /(sierra\s*mooniva|mooniva|sierramooniva)/i.test(
-        `${title} ${description}`,
-      ),
+      /*
+       * A clip has to name her, and a common word alone is not naming her.
+       *
+       * "Mooniva" on its own collides with at least three unrelated things: a
+       * children's cartoon, a Penguin-of-Africa brand, and -- the reason this wall
+       * was carrying a belt review -- a belt sold by two Indonesian shops. The
+       * `/clips` page was showing "Mooniva Belt Review! High Quality,
+       * Fashionable, Microadjustable, Comfortable" from a channel called Worthen
+       * Bros, which matched on the bare word and nothing else.
+       *
+       * The alternation had a redundant `mooniva` branch sitting alongside
+       * `sierra\s*mooniva` and `sierramooniva`, which is what let it through, and
+       * the comment above it already said a common word was not enough. Measured
+       * against the current result set, dropping that one branch removes three
+       * product videos and all fourteen real clips survive.
+       *
+       * \s* so a caption written "Sierra Mooniva" without the space still counts.
+       */
+      mentions: /(sierra\s*mooniva|sierramooniva)/i.test(`${title} ${description}`),
       // A collaboration publishes under both names, e.g. "Sierra Mooniva dan
       // SomeoneElse", so this matches a prefix rather than the whole string.
       isOwn: channel.startsWith(CHANNEL_TITLE_PREFIX),
