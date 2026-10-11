@@ -11,6 +11,7 @@ import { Profile } from "@/components/Profile";
 import { Project } from "@/components/Project";
 import { RevealFailsafe } from "@/components/RevealFailsafe";
 import { StreamPage } from "@/components/StreamPage";
+import { NotifyButton } from "@/components/NotifyButton";
 import { Tweets } from "@/components/Tweets";
 import { Uploads } from "@/components/Uploads";
 import { ROUTES, type Route } from "@/content/site";
@@ -99,6 +100,9 @@ export default function App() {
         {route === "/" ? (
           <>
             <Hero />
+            <div className="shell mt-2 flex justify-center">
+              <NotifyButton />
+            </div>
             <Profile />
             <Uploads />
             <Channels />
